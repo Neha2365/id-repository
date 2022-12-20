@@ -78,6 +78,7 @@ import io.mosip.idrepository.core.logger.IdRepoLogger;
 import io.mosip.idrepository.core.security.IdRepoSecurityManager;
 import io.mosip.idrepository.core.spi.IdRepoDraftService;
 import io.mosip.idrepository.core.util.DataValidationUtil;
+import io.mosip.idrepository.identity.entity.AnonymousProfileDto;
 import io.mosip.idrepository.identity.entity.Uin;
 import io.mosip.idrepository.identity.entity.UinBiometric;
 import io.mosip.idrepository.identity.entity.UinBiometricDraft;
@@ -134,6 +135,9 @@ public class IdRepoDraftServiceImpl extends IdRepoServiceImpl implements IdRepoD
 	
 	@Autowired
 	private VidDraftHelper vidDraftHelper;
+	
+	@Autowired
+	private AnonymousProfileDto anonymousProfileDto;
 	
 	@Override
 	public IdResponseDTO createDraft(String registrationId, String uin) throws IdRepoAppException {
@@ -335,7 +339,7 @@ public class IdRepoDraftServiceImpl extends IdRepoServiceImpl implements IdRepoD
 
 	@Override
 	public IdResponseDTO publishDraft(String regId) throws IdRepoAppException {
-		anonymousProfileHelper.setRegId(regId);
+		anonymousProfileDto.setRegId(regId);
 		try {
 			String draftVid = null;
 			Optional<UinDraft> uinDraft = uinDraftRepo.findByRegId(regId);
@@ -345,9 +349,9 @@ public class IdRepoDraftServiceImpl extends IdRepoServiceImpl implements IdRepoD
 				throw new IdRepoAppException(NO_RECORD_FOUND);
 			} else {
 				UinDraft draft = uinDraft.get();
-				anonymousProfileHelper
+				anonymousProfileDto
 				.setNewCbeff(draft.getUinHash().split("_")[1],
-						!anonymousProfileHelper.isNewCbeffPresent() && Objects.nonNull(draft.getBiometrics())
+						!anonymousProfileDto.isNewCbeffPresent() && Objects.nonNull(draft.getBiometrics())
 						&& !draft.getBiometrics().isEmpty()
 						? draft.getBiometrics().get(draft.getBiometrics().size() - 1).getBioFileId()
 								: null);

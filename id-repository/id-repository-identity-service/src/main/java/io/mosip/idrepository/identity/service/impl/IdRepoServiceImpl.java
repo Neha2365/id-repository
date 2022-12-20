@@ -72,6 +72,7 @@ import io.mosip.idrepository.core.security.IdRepoSecurityManager;
 import io.mosip.idrepository.core.spi.IdRepoService;
 import io.mosip.idrepository.core.util.DummyPartnerCheckUtil;
 import io.mosip.idrepository.core.util.EnvUtil;
+import io.mosip.idrepository.identity.entity.AnonymousProfileDto;
 import io.mosip.idrepository.identity.entity.IdentityUpdateTracker;
 import io.mosip.idrepository.identity.entity.Uin;
 import io.mosip.idrepository.identity.entity.UinBiometric;
@@ -196,6 +197,9 @@ public class IdRepoServiceImpl implements IdRepoService<IdRequestDTO, Uin> {
 	@Autowired
 	private IdentityUpdateTrackerRepo identityUpdateTracker;
 	
+	@Autowired
+	private AnonymousProfileDto anonymousProfileDto;
+	
 	/**
 	 * Adds the identity to DB.
 	 *
@@ -214,7 +218,7 @@ public class IdRepoServiceImpl implements IdRepoService<IdRequestDTO, Uin> {
 		String uinHash = getUinHash(uin);
 		String uinHashWithSalt = uinHash.split(SPLITTER)[1];
 		String uinToEncrypt = getUinToEncrypt(uin);
-		anonymousProfileHelper
+		anonymousProfileDto
 			.setRegId(request.getRequest().getRegistrationId())
 			.setNewUinData(identityInfo);
 
@@ -280,7 +284,7 @@ public class IdRepoServiceImpl implements IdRepoService<IdRequestDTO, Uin> {
 			try {
 				if (bioAttributes.contains(doc.getCategory())) {
 					addBiometricDocuments(uinHash, uinRefId, bioList, doc, docType, isDraft, index);
-					anonymousProfileHelper.setNewCbeff(doc.getValue());
+					anonymousProfileDto.setNewCbeff(doc.getValue());
 				} else {
 					addDemographicDocuments(uinHash, uinRefId, docList, doc, docType, isDraft);
 				}
@@ -390,13 +394,13 @@ public class IdRepoServiceImpl implements IdRepoService<IdRequestDTO, Uin> {
 	 */
 	@Override
 	public Uin updateIdentity(IdRequestDTO request, String uin) throws IdRepoAppException {
-		anonymousProfileHelper.setRegId(request.getRequest().getRegistrationId());
+		anonymousProfileDto.setRegId(request.getRequest().getRegistrationId());
 		String uinHash = getUinHash(uin);
 		String uinHashWithSalt = uinHash.split(SPLITTER)[1];
 		try {
 			Uin uinObject = retrieveIdentity(uinHash, IdType.UIN, null, null);
-			anonymousProfileHelper.setOldCbeff(uinHash,
-					!anonymousProfileHelper.isOldCbeffPresent() && Objects.nonNull(uinObject.getBiometrics())
+			anonymousProfileDto.setOldCbeff(uinHash,
+					!anonymousProfileDto.isOldCbeffPresent() && Objects.nonNull(uinObject.getBiometrics())
 							&& !uinObject.getBiometrics().isEmpty()
 									? uinObject.getBiometrics().get(uinObject.getBiometrics().size() - 1).getBioFileId()
 									: null);
@@ -413,7 +417,7 @@ public class IdRepoServiceImpl implements IdRepoService<IdRequestDTO, Uin> {
 						.mappingProvider(new JacksonMappingProvider()).build();
 				DocumentContext inputData = JsonPath.using(configuration).parse(requestDTO.getIdentity());
 				DocumentContext dbData = JsonPath.using(configuration).parse(new String(uinObject.getUinData()));
-				anonymousProfileHelper.setOldUinData(dbData.jsonString().getBytes());
+				anonymousProfileDto.setOldUinData(dbData.jsonString().getBytes());
 				updateVerifiedAttributes(requestDTO, inputData, dbData);
 				JSONCompareResult comparisonResult = JSONCompare.compareJSON(inputData.jsonString(),
 						dbData.jsonString(), JSONCompareMode.LENIENT);
@@ -427,9 +431,9 @@ public class IdRepoServiceImpl implements IdRepoService<IdRequestDTO, Uin> {
 				uinObject.setUpdatedDateTime(DateUtils.getUTCCurrentDateTime());
 
 				if (Objects.nonNull(requestDTO.getDocuments()) && !requestDTO.getDocuments().isEmpty()) {
-					anonymousProfileHelper
+					anonymousProfileDto
 							.setNewCbeff(uinObject.getUinHash(),
-									!anonymousProfileHelper.isNewCbeffPresent() ?
+									!anonymousProfileDto.isNewCbeffPresent() ?
 									uinObject.getBiometrics().get(uinObject.getBiometrics().size() - 1).getBioFileId()
 											: null);
 					updateDocuments(uinHashWithSalt, uinObject, requestDTO, false);
@@ -439,7 +443,7 @@ public class IdRepoServiceImpl implements IdRepoService<IdRequestDTO, Uin> {
 			}
 
 			uinObject = uinRepo.save(uinObject);
-			anonymousProfileHelper.setNewUinData(uinObject.getUinData());
+			anonymousProfileDto.setNewUinData(uinObject.getUinData());
 			uinHistoryRepo.save(new UinHistory(uinObject.getUinRefId(), DateUtils.getUTCCurrentDateTime(),
 					uinObject.getUin(), uinObject.getUinHash(), uinObject.getUinData(), uinObject.getUinDataHash(),
 					uinObject.getRegId(), uinObject.getStatusCode(), IdRepoSecurityManager.getUser(),
@@ -724,7 +728,7 @@ public class IdRepoServiceImpl implements IdRepoService<IdRequestDTO, Uin> {
 										identityMap.get(bio.getBiometricFileType()).get(FILE_FORMAT_ATTRIBUTE).asText(), CBEFF_FORMAT)
 										&& bioFileId.endsWith(CBEFF_FORMAT)) {
 									byte[] decodedBioData = CryptoUtil.decodeURLSafeBase64(doc.getValue());
-									anonymousProfileHelper.setOldCbeff(CryptoUtil.encodeToURLSafeBase64(data));
+									anonymousProfileDto.setOldCbeff(CryptoUtil.encodeToURLSafeBase64(data));
 									doc.setValue(CryptoUtil.encodeToURLSafeBase64(this.updateXML(decodedBioData, data)));
 								}
 						} catch (IdRepoAppUncheckedException e) {
@@ -754,7 +758,7 @@ public class IdRepoServiceImpl implements IdRepoService<IdRequestDTO, Uin> {
 						.concat(bir.getBdbInfo().getSubtype().stream().collect(Collectors.joining())), bir -> bir));
 		inputBIRDataMap.entrySet().forEach(entry -> existingBIRDataMap.replace(entry.getKey(), entry.getValue()));
 		byte[] updatedCbeff = cbeffUtil.createXML(new ArrayList<>(existingBIRDataMap.values()));
-		anonymousProfileHelper.setNewCbeff(CryptoUtil.encodeToURLSafeBase64(updatedCbeff));
+		anonymousProfileDto.setNewCbeff(CryptoUtil.encodeToURLSafeBase64(updatedCbeff));
 		return updatedCbeff;
 	}
 

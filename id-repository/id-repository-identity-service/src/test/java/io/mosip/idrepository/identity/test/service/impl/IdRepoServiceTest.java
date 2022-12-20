@@ -256,10 +256,10 @@ public class IdRepoServiceTest {
 		uin.setStatusCode(EnvUtil.getUinActiveStatus());
 		when(credRequestRepo.findByIndividualIdHash(Mockito.any())).thenReturn(List.of());
 		when(dummyPartner.getDummyOLVPartnerId()).thenReturn("");
-		when(anonymousProfileHelper.setRegId(Mockito.any())).thenReturn(anonymousProfileHelper);
-		when(anonymousProfileHelper.setOldCbeff(Mockito.any())).thenReturn(anonymousProfileHelper);
-		when(anonymousProfileHelper.setNewUinData(Mockito.any())).thenReturn(anonymousProfileHelper);
-		when(anonymousProfileHelper.isNewCbeffPresent()).thenReturn(true);
+		//when(anonymousProfileHelper.setRegId(Mockito.any())).thenReturn(anonymousProfileHelper);
+		//when(anonymousProfileHelper.setOldCbeff(Mockito.any())).thenReturn(anonymousProfileHelper);
+		//when(anonymousProfileHelper.setNewUinData(Mockito.any())).thenReturn(anonymousProfileHelper);
+		//when(anonymousProfileHelper.isNewCbeffPresent()).thenReturn(true);
 	}
 
 	/**
@@ -1056,7 +1056,7 @@ public class IdRepoServiceTest {
 		when(uinRepo.save(Mockito.any())).thenReturn(uinObj);
 		when(uinEncryptSaltRepo.retrieveSaltById(Mockito.anyInt())).thenReturn("7C9JlRD32RnFTzAmeTfIzg");
 		when(uinHashSaltRepo.retrieveSaltById(Mockito.anyInt())).thenReturn("AG7JQI1HwFp_cI_DcdAQ9A");
-		when(anonymousProfileHelper.isNewCbeffPresent()).thenReturn(false);
+		//when(anonymousProfileHelper.isNewCbeffPresent()).thenReturn(false);
 		RestRequestDTO restReq = new RestRequestDTO();
 		restReq.setUri("http://localhost/v1/vid/{uin}");
 		when(restBuilder.buildRequest(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(restReq);
@@ -1444,7 +1444,7 @@ public class IdRepoServiceTest {
 		when(uinEncryptSaltRepo.retrieveSaltById(Mockito.anyInt())).thenReturn("7C9JlRD32RnFTzAmeTfIzg");
 		when(uinHashSaltRepo.retrieveSaltById(Mockito.anyInt())).thenReturn("AG7JQI1HwFp_cI_DcdAQ9A");
 		when(cbeffUtil.updateXML(Mockito.any(), Mockito.any())).thenReturn("value".getBytes());
-		when(anonymousProfileHelper.isNewCbeffPresent()).thenReturn(false);
+		//when(anonymousProfileHelper.isNewCbeffPresent()).thenReturn(false);
 		RestRequestDTO restReq = new RestRequestDTO();
 		restReq.setUri("http://localhost/v1/vid/{uin}");
 		when(restBuilder.buildRequest(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(restReq);
@@ -1493,7 +1493,7 @@ public class IdRepoServiceTest {
 		when(uinEncryptSaltRepo.retrieveSaltById(Mockito.anyInt())).thenReturn("7C9JlRD32RnFTzAmeTfIzg");
 		when(uinHashSaltRepo.retrieveSaltById(Mockito.anyInt())).thenReturn("AG7JQI1HwFp_cI_DcdAQ9A");
 		when(cbeffUtil.updateXML(Mockito.any(), Mockito.any())).thenReturn("value".getBytes());
-		when(anonymousProfileHelper.isNewCbeffPresent()).thenReturn(false);
+		//when(anonymousProfileHelper.isNewCbeffPresent()).thenReturn(false);
 		RestRequestDTO restReq = new RestRequestDTO();
 		restReq.setUri("http://localhost/v1/vid/{uin}");
 		when(restBuilder.buildRequest(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(restReq);
@@ -1548,7 +1548,7 @@ public class IdRepoServiceTest {
 		when(uinEncryptSaltRepo.retrieveSaltById(Mockito.anyInt())).thenReturn("7C9JlRD32RnFTzAmeTfIzg");
 		when(uinHashSaltRepo.retrieveSaltById(Mockito.anyInt())).thenReturn("AG7JQI1HwFp_cI_DcdAQ9A");
 		when(cbeffUtil.updateXML(Mockito.any(), Mockito.any())).thenReturn("value".getBytes());
-		when(anonymousProfileHelper.isNewCbeffPresent()).thenReturn(false);
+		//when(anonymousProfileHelper.isNewCbeffPresent()).thenReturn(false);
 		RestRequestDTO restReq = new RestRequestDTO();
 		restReq.setUri("http://localhost/v1/vid/{uin}");
 		when(identityUpdateTracker.findById(any())).thenReturn(Optional.empty());
@@ -2123,7 +2123,7 @@ public class IdRepoServiceTest {
 		when(uinRepo.save(Mockito.any())).thenReturn(uinObj);
 		when(uinEncryptSaltRepo.retrieveSaltById(Mockito.anyInt())).thenReturn("7C9JlRD32RnFTzAmeTfIzg");
 		when(uinHashSaltRepo.retrieveSaltById(Mockito.anyInt())).thenReturn("AG7JQI1HwFp_cI_DcdAQ9A");
-		when(anonymousProfileHelper.isNewCbeffPresent()).thenReturn(false);
+		//when(anonymousProfileHelper.isNewCbeffPresent()).thenReturn(false);
 		when(identityUpdateTracker.findById(any())).thenReturn(Optional.empty());
 		RestRequestDTO restReq = new RestRequestDTO();
 		restReq.setUri("http://localhost/v1/vid/{uin}");
